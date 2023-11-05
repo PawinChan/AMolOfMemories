@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <script src="/pleasememorize.js"></script>
+  <link href="/styles.css" rel="stylesheet">
+  <title>Memorize!</title>
+</head>
+<body>
+  <div id="mainContainer">
+    <h1>Memorize!</h1>
+    <p id="question">Welcome! Are you ready?</p>
+    <p id="answer">Yes</p>
+    <input type="text" id="answerfield">
+
+    <p id="editlink" style="font-size: smaller;"><a href="/edit">Edit</a></p>
+
+    <br style="margin: 0.8em auto;">
+    <details id="simpleGuide">
+      <summary> <i>Some guides?</i></summary>
+      <div id="guideContent">
+        <p><i> I think it's too simple!</i></p>
+        
+        <div id="ulContainer">
+          <ul>
+            <li>Answering: Just type it in.</li>
+            <li>See Answer / Skip: <kbd>enter</kbd>.</li>
+            <li>Correct: Green -- proceed.</li>
+            <li>Incorrect: Red -- correct it.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </div>
+</body>
+</html>

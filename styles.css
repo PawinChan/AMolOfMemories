@@ -1,0 +1,50 @@
+#mainContainer {
+  width: fit-content; margin: auto; display: block; text-align: center;
+}
+
+#question {
+  font-weight: 700; font-size: 120%;
+  margin-bottom: 0.5em;
+}
+
+#answer {
+  visibility: hidden;
+  margin-top: 0.5em;
+}
+
+#answerfield {
+  border-radius: 2px; outline: solid 2px grey
+}
+
+#answerfield:focus {
+  border-radius: 2px; outline: solid 2px SkyBlue
+}
+
+#editlink, #goBackLink {
+  margin-top: 1.5em;
+}
+
+#seperatorOptionContainer {
+  display: block;
+  margin: auto;
+}
+
+#ulContainer {
+  display: block;
+  margin: auto;
+  width: fit-content;
+  text-align: left;
+}
+#ulContainer > ul {
+  padding-left: 1em;
+}
+
+#simpleGuide {
+  width: 14em; 
+}
+
+#guideContent {
+  background-color: color-mix(in srgb, dimgrey, black 50%);
+  border-radius: 2px; padding: 1px 0px;
+  margin: 0.8em 0;
+}

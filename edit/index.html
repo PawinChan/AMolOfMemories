@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <script src="saver.js"></script>
+  <link href="/styles.css" rel="stylesheet">
+  <title>Edit Items!</title>
+</head>
+<body>
+  <div id="mainContainer">
+    <h1>Memorize - Edit Items</h1>
+    <div id="seperatorOptionContainer">
+      <label for="textSeperator">Q&A Seperator: &nbsp;</label>
+      <select id="textSeperator" disabled>
+        <option value="-">-</option>
+        <option value=":">:</option>
+        <option value=";">;</option>
+        <option value="/">/</option>
+        <option value="_">_</option>
+        <option value="\t">\t</option>
+      </select>
+    </div>
+    <br>
+    <textarea disabled id="editField" style="line-height: 2; padding: 0.5em 0.8em;" rows="10" cols="60" placeholder="What does youtu.be/dQw4w9WgXcQ lead to? - The Rickroll&#10;How long does the rickroll last in seconds? - 213"></textarea>
+    <p id="gobacklink" style="font-size: smaller;">This autosaves. <a href="/">Go Back.</a></p>
+  </div>
+</body>
+</html>
