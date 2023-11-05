@@ -23,6 +23,7 @@ function checkAnswer(event) {
   var userAnswer = answerField.value.trim().toLowerCase()
   var correctAnswer = answerEl.innerHTML.trim().toLowerCase()
   answerEl.style.visibility = 'hidden';
+  
 
   //console.log(answerField.style.outline)
   if (userAnswer == correctAnswer) {
@@ -69,6 +70,11 @@ function nextQuestion() {
 }
 
 function loadQuestions(userInput, kvDelimiter, entryDelimiter = '\n') {
+  if (!(userInput || kvDelimiter)){
+    userInput = `What does youtu.be/dQw4w9WgXcQ lead to? - The Rickroll
+How long does the rickroll last in seconds? - 213`
+    kvDelimiter = '-'
+  }
   questionList = [];
   questionIndex = -1;
   for (item of userInput.split(entryDelimiter)) {
