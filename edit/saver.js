@@ -27,7 +27,7 @@ How long does the rickroll last in seconds? - 213`
   }
 
   if (!textSeperatorValue) {
-    textSeperator = '-'
+    textSeperatorValue = '-'
   }
 
   editFieldEl.value = editFieldValue
