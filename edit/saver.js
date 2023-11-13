@@ -18,8 +18,20 @@ function saveData() {
 }
 
 function loadData() {
-  editFieldEl.value = localStorage['editfield'];
-  textSeperatorEl.value = localStorage['textseperator'];
+  editFieldValue = localStorage['editfield'];
+  textSeperatorValue = localStorage['textseperator'];
+
+  if (!editFieldValue) {
+    editFieldValue = `What does youtu.be/dQw4w9WgXcQ lead to? - The Rickroll
+How long does the rickroll last in seconds? - 213`
+  }
+
+  if (!textSeperatorValue) {
+    textSeperator = '-'
+  }
+
+  editFieldEl.value = editFieldValue
+  textSeperatorEl.value = textSeperatorValue
 
   editField.removeAttribute('disabled');
   textSeperator.removeAttribute('disabled');

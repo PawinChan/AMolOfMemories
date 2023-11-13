@@ -1,3 +1,8 @@
+:root {
+  font-family: 'Sarabun', sans-serif;
+  letter-spacing: 0.02em;
+}
+
 #mainContainer {
   width: fit-content; margin: auto; display: block; text-align: center;
 }
