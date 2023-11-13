@@ -73,7 +73,7 @@ function loadQuestions(userInput, kvDelimiter, entryDelimiter = '\n') {
   if (!(userInput || kvDelimiter)){
     userInput = `What does youtu.be/dQw4w9WgXcQ lead to? - The Rickroll
 How long does the rickroll last in seconds? - 213
-If you're reading this, please press edit and change the questions already - OK`
+If you're reading this, please press edit and change the questions already! - OK`
     kvDelimiter = '-'
   }
   questionList = [];

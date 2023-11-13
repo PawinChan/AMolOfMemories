@@ -54,3 +54,19 @@
   border-radius: 2px; padding: 1px 0px;
   margin: 0.8em 0;
 }
+
+
+
+
+#lightblue {
+  color: SkyBlue;
+}
+#yellow {
+  color: Gold;
+}
+#red {
+  color: Tomato;
+}
+#green {
+  color: #35a854;
+}

@@ -34,7 +34,7 @@ How long does the rickroll last in seconds? - 213`
   textSeperatorEl.value = textSeperatorValue
 
   editField.removeAttribute('disabled');
-  textSeperator.removeAttribute('disabled');
+  textSeperatorEl.removeAttribute('disabled');
 
   console.log("Data Loaded.")
 }
