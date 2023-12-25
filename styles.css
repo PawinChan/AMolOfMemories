@@ -55,7 +55,9 @@
   margin: 0.8em 0;
 }
 
-
+#errors {
+  font-size: smaller;
+}
 
 
 #lightblue {

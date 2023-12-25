@@ -49,8 +49,14 @@ function checkAnswer(event) {
   //wrong answer
   else if (userAnswer.length >= correctAnswer.length && userAnswer != correctAnswer) {
     answerField.style.outline = 'solid 2px Tomato';
-    console.log(`${currentQuestion}: ${userAnswer}. This seems wrong.`)
+
+    var alreadyInIncorrectList = arrayIncludes(incorrectList, [currentQuestion, correctAnswer])
+    if (!alreadyInIncorrectList) {
+      incorrectList.push([currentQuestion, correctAnswer])
+      console.log(`${currentQuestion}: ${userAnswer}. This seems wrong.\nIncorrect List: ${incorrectList.length}`)
+    }
   }
+    
   else {
     answerField.style.outline = '';
     console.log("clearing outline")
@@ -60,12 +66,26 @@ function checkAnswer(event) {
 }
 
 function nextQuestion() {
-  questionIndex += 1
-  if (questionIndex >= questionList.length) {
-    questionIndex = 0;
+  var reviewIncorrectQuestion = ((incorrectList.length != 0) && (Math.random() < (1/3)))
+  
+  if (reviewIncorrectQuestion) {
+    questionEl.innerHTML = `<i>${incorrectList[0][0]}</i>`;
+    answerEl.innerHTML = incorrectList[0][1];
+    incorrectList.shift() //removes first element
+    console.log(`Incorrect List: ${incorrectList.length}`)
   }
-  questionEl.innerHTML = questionList[questionIndex][0];
-  answerEl.innerHTML = questionList[questionIndex][1];
+
+  else {
+    questionIndex += 1
+    //After completing all questions, shuffle and start again
+    if (questionIndex >= questionList.length) {
+      shuffleQuestions()
+      questionIndex = 0;
+    }
+    questionEl.innerHTML = questionList[questionIndex][0];
+    answerEl.innerHTML = questionList[questionIndex][1];
+  }
+
   answerField.value = '';
 }
 
@@ -78,12 +98,55 @@ If you're reading this, please press edit and change the questions already! - OK
   }
   questionList = [];
   questionIndex = -1;
+  incorrectList = [];
+  console.log("Delimiter is " + kvDelimiter)
+
+  //Iterate through each line
   for (item of userInput.split(entryDelimiter)) {
-    if (item.split(kvDelimiter).length != 2) {
-      throw new Error('Invalid input');
+
+    item = item.trim()
+
+    //skip if its blank or commented
+    if (!item || item.startsWith('#')) {
+      continue
     }
-    questionList.push(item.split(kvDelimiter))
+
+    //split the items using the delimiter
+    var splittedStuff = item.split(kvDelimiter)
+
+    //add it to the list if its splited properly
+    if (splittedStuff.length == 2) {
+      questionList.push(splittedStuff)
+    }
+    else {
+      //show a warning mesage if not.
+      var emsg = `Invalid Input. Unable to split Q/A properly. Some questions may be missing.`
+      document.getElementById('errorContent').innerHTML = emsg;
+      console.warn(emsg, splittedStuff);
+    }
+    
   }
   console.log(questionList)
 }
 
+function shuffleQuestions() {
+  arrayShuffle(questionList)
+  console.log("Iteration Complete. Questions shuffled.")
+}
+
+
+function arrayIncludes(arr, target) {
+  return arr.some(itemOfArr => 
+    Array.isArray(itemOfArr) && 
+    Array.isArray(target) && 
+    itemOfArr.length === target.length && 
+    itemOfArr.every((val, index) => val === target[index])
+  );
+}
+
+function arrayShuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
