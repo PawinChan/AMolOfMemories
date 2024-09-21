@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
-  <script src="saver.js"></script>
+  <script src="/pleasememorize.js"></script>
   <link href="/styles.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,13 +21,36 @@
         <option value=":">:</option>
         <option value=";">;</option>
         <option value="/">/</option>
+        <option value="|">|</option>
         <option value="_">_</option>
         <option value="\t">\t</option>
       </select>
     </div>
     <br>
-    <textarea disabled id="editField" style="line-height: 2; padding: 0.5em 0.8em;" rows="10" cols="60" placeholder="What does youtu.be/dQw4w9WgXcQ lead to? - The Rickroll&#10;How long does the rickroll last in seconds? - 213"></textarea>
-    <p id="gobacklink" style="font-size: smaller;">This autosaves. <a href="/">Go Back.</a></p>
+    <p id="lastSaved" style="width: 100%; margin: 0; text-align: right; font-size: smaller;">Last Saved: Loaded from LocalStorage</p>
+    <textarea disabled id="editField" style="line-height: 2; padding: 0.5em 0.8em;" rows="10" cols="60"
+     placeholder="What does youtu.be/dQw4w9WgXcQ lead to? - The Rickroll&#10;How long does the rickroll last in seconds? - 213&#10;#Add comments like this."
+     >
+    </textarea>
+    
+    <p class="navLinks" style="margin: 0.8em auto;">
+      <input type="checkbox" id="questionSwapCheckbox" disabled>
+      <label for="questionSwapCheckbox">Swap Q&A by default for this set.</label>
+
+      <input type="checkbox" id="showChoicesCheckbox" disabled>
+      <label for="showChoicesCheckbox">Always show choices.</label>
+    </p>
+    <p class="navLinks" style="margin: 0 auto;">This autosaves. <a href="/">Go Back.</a></p>
+    <p class="navLinks">
+      <span>Data Operations</span>
+      <a href="javascript:importQuestions();">Import</a>
+      <a href="javascript:exportQuestions();">Export</a>
+    </p>
+
+    <div id="errors">
+      <p id="errorContent"></p>
+    </div>
+    
   </div>
 </body>
 </html>

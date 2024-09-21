@@ -10,11 +10,12 @@
 #question {
   font-weight: 700; font-size: 120%;
   margin-bottom: 0.5em;
+  max-width: 500px
 }
 
-#answer {
+#answer, #hint {
   visibility: hidden;
-  margin-top: 0.5em;
+  /* margin-top: 0.5em; */
 }
 
 #answerfield {
@@ -25,8 +26,9 @@
   border-radius: 2px; outline: solid 2px SkyBlue
 }
 
-#editlink, #goBackLink {
+.navLinks {
   margin-top: 1.5em;
+  font-size: smaller;
 }
 
 #seperatorOptionContainer {
@@ -71,4 +73,26 @@
 }
 #green {
   color: #35a854;
+}
+#totalProgress {
+  position: fixed;
+  margin: 0 1em;
+  padding: 0;
+  width: -moz-available;
+  left: 0;
+  top: 0;
+  background-color: #1c1b22;
+  border-color: #2b2a33;
+  border-radius: 0.1em;
+  height: 0.16em;
+  transition: value 1s ease-out;
+}
+#hint {
+  margin: auto;
+  width: fit-content;
+  text-align: left;
+  opacity: 0.8;
+}
+#tempNotice {
+  height: 1em;
 }

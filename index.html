@@ -12,26 +12,41 @@
   <title>Memorize!</title>
 </head>
 <body>
+  <progress id="totalProgress" max="100" value="0"></progress>
   <div id="mainContainer">
     <h1>Memorize!</h1>
     <p id="question">Welcome! Are you ready?</p>
+    <p id="hint"></p>
     <p id="answer">Yes</p>
+    <!-- <input type="checkbox" id="askQ" onchange="doSwapQA()">
+    <label for="swapQA">Ask Q</label>
+    <input type="checkbox" id="askA" onchange="doSwapQA()">a
+    <label for="swapQA">Ask A</label> -->
+
+    <!-- <br> -->
     <input type="text" id="answerfield">
 
-    <p id="editlink" style="font-size: smaller;"><a href="/edit">Edit</a></p>
+    <p class="navLinks">
+      <a href="javascript:showChoices();">Hint</a> &nbsp;
+      <a href="/edit">Edit</a> &nbsp;
+      <a href="javascript:shuffleQuestions(); notify('Shuffled Questions');">Shuffle</a>&nbsp;
+      <a href="javascript:doSwapQA(); notify('Swapped Q/A');">Swap</a>
+    </p>
+    <p style="font-size: smaller;"></p>
 
     <div id="errors">
       <p id="errorContent"></p>
+      <p id="tempNotice"></p>
     </div>
     
     <div id="guideSection">
-      <br style="margin: 0.8em auto;">
+      <!-- <br style="margin: 0.8em auto;"> -->
 
       <details id="simpleGuide">
-        <summary> <i>Some guides?</i></summary>
+        <summary> <i>How to use.</i></summary>
 
         <div id="guideContent">
-          <p><i> I think it's too simple!</i></p>
+          <p><i> Quick start guide.</i></p>
           
           <div id="ulContainer">
             <ul>
@@ -39,6 +54,7 @@
               <li><span id="yellow"> See Answer </span>/ Skip: <kbd>enter</kbd>.</li>
               <li><span id="green"> Correct: </span>Green -- proceed.</li>
               <li><span id="red"> Incorrect: </span>Red -- correct it.</li>
+              <li><span>View choices</span>: Press <kbd>?</kbd></li>
             </ul>
           </div>
         </div>
