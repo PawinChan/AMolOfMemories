@@ -1,4 +1,12 @@
-path  = window.location.pathname.toLowerCase()
+
+// When going through questions, choose some from the ones you answered incorrectly
+REVIEW_PROBABILITY = 2 / 3
+
+// You'll need to review the question twice after getting it wrong.
+INCORRECT_REPEATS = 2
+
+
+path = window.location.pathname.toLowerCase()
 if (['', '/', '/index.html'].includes(path)) {
   window.addEventListener('DOMContentLoaded', initMemorizer);
 }
@@ -24,12 +32,18 @@ function initMemorizer() {
 
 
 function addToIncorrect(currentQuestion, correctAnswer) {
+  // console.log(currentQuestion, correctAnswer)
+  if (currentQuestion == "Welcome! Are you ready?" && correctAnswer == "Yes") {
+    console.log("Not adding welcome qustion to incorrect list.")
+    return
+  }
   var userAnswer = answerField.value.trim().toLowerCase()
   //var alreadyInIncorrectList = arrayIncludes(incorrectList, [currentQuestion, correctAnswer])
   var previouslyIncorrect = (incorrectList.length != 0) && (incorrectList[incorrectList.length - 1][0] == currentQuestion)
   if (/*!alreadyInIncorrectList*/ !previouslyIncorrect) {
-    incorrectList.push([currentQuestion, correctAnswer])
-    incorrectList.push([currentQuestion, correctAnswer])
+    for (let i = 0; i < INCORRECT_REPEATS; i++) {
+      incorrectList.push([currentQuestion, correctAnswer])
+    }
     console.log(`${currentQuestion}: ${userAnswer}. This seems to be incorrect`)
   }
 }
@@ -53,26 +67,32 @@ function prepareChoices() {
 
 function checkAnswer(event) {
   //correct answer
-  var currentQuestion = questionEl.innerHTML.trim()
+  var currentQuestion = questionEl.textContent.trim()
+  //NOTE: .innerTEXT returns '' since the element is hidden and not visible.
   var userAnswer = answerField.value.trim().replaceAll(' ', '').toLowerCase()
-  var correctAnswer = answerEl.innerHTML.trim().replaceAll(' ', '').toLowerCase()
+  var correctAnswerRaw = answerEl.textContent.trim()
+  var correctAnswer = correctAnswerRaw.replaceAll(' ', '').toLowerCase()
 
   answerEl.style.visibility = 'hidden';
   
 
   //console.log(answerField.style.outline)
   if (userAnswer == correctAnswer) {
+    //console.log(userAnswer, correctAnswer)
     answerField.style.outline = 'solid 2px #35a854';
     console.log(`${currentQuestion}: ${answerField.value.trim()} is correct!`)
     nextQuestion();
   }
+  
+  //Probably Correct Answer
+  //TODO: deal with the*, *s, *es, *y, *ies, 
   
   //request answer (ENTER)
   else if (event.keyCode == 13 && !answerField.style.outline.includes('gold')) {
     answerField.style.outline = 'solid 2px Gold';
     console.log('Answer requested :/')
     answerEl.style.visibility = 'visible';
-    addToIncorrect(currentQuestion, correctAnswer,);
+    addToIncorrect(currentQuestion, correctAnswerRaw);
   }
   
   //skip question
@@ -88,10 +108,14 @@ function checkAnswer(event) {
     showChoices();
     setTimeout(() => {answerField.value = '';})
   }
+  // //answer with choice (!)
+  // else if (event.keyCode = 49) {
+
+  // }
   //wrong answer
   else if (userAnswer.length >= correctAnswer.length && userAnswer != correctAnswer) {
     answerField.style.outline = 'solid 2px Tomato';
-    addToIncorrect(currentQuestion, correctAnswer);
+    addToIncorrect(currentQuestion, correctAnswerRaw);
   }
     
   else {
@@ -105,7 +129,7 @@ function checkAnswer(event) {
 function nextQuestion() {
   let randomNum = Math.random()
   console.log(randomNum)
-  var reviewIncorrectQuestion = ((incorrectList.length != 0) && (randomNum < (1 / 3)))
+  var reviewIncorrectQuestion = ((incorrectList.length != 0) && (randomNum < REVIEW_PROBABILITY))
   
   if (reviewIncorrectQuestion) {
     questionEl.innerHTML = `<i>${incorrectList[0][0]}</i>`;
@@ -130,13 +154,21 @@ function nextQuestion() {
   if (localStorage['choicesByDefault'] == "true") {
     showChoices();
   }
+  else {
+    document.getElementById('hint').style.visibility = 'hidden';
+  }
   updateProgress(questionIndex, questionList.length)
 }
 
 function updateProgress(current, total) { 
   //<progress id="totalProgress" max="100" value="0"></progress>
-  document.getElementById('totalProgress').value = (current / total * 100) || 100; 
-  
+  var progressPercent = (current / total * 100) || 100
+  progressEl = document.getElementById('totalProgress')
+
+  progressEl.value = progressPercent; 
+  if (progressPercent = 100) {
+    // progressEl.
+  }
 }
 function loadQuestions(userInput, kvDelimiter, entryDelimiter = '\n') {
   if (!(userInput || kvDelimiter)){
@@ -265,12 +297,50 @@ How long does the rickroll last in seconds? - 213`
 }
 
 function exportQuestions() {
-  var dataStr = JSON.stringify(loadLsQuestions(), null, 2);
+  saveData();
+  var editPageData = {
+    'aboutThis': {
+      'website': 'https://memorize.pawin.me',
+      'github': 'https://github.com/PawinChan/AMolOfMemories',
+    },
+    'textseperator': localStorage['textseperator'],
+    'swapByDefault': localStorage['swapByDefault'],
+    'choicesByDefault': localStorage['choicesByDefault'],
+    'editfield': localStorage['editfield'],
+  }
+  var dataStr = JSON.stringify(editPageData, null, 2);
   var data = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+  var studySetName = prompt("Enter a name for this set:", "memorize") || "memorize";
   var downloadLink = document.createElement('a');
   downloadLink.setAttribute('href', data);
-  downloadLink.setAttribute('download', 'memorize.json');
+  downloadLink.setAttribute('download', `${studySetName}.memorize.json`);
   downloadLink.click();
+}
+
+function importQuestions() { 
+  var confirmation = confirm("This will overwrite the current questions. Are you sure you want to continue?")
+  if (!confirmation) {
+    return
+  }
+
+  var fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.json';
+  fileInput.onchange = function() {
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var data = JSON.parse(e.target.result);
+      localStorage['editfield'] = data.editfield;
+      localStorage['textseperator'] = data.textseperator;
+      localStorage['swapByDefault'] = data.swapByDefault;
+      localStorage['choicesByDefault'] = data.choicesByDefault;
+      console.log('Questions Imported.')
+      loadData();
+    }
+    reader.readAsText(file);
+  }
+  fileInput.click();
 }
 
 function changeSwapMode() {
