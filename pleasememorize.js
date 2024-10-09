@@ -18,7 +18,7 @@ else if (['/edit', '/edit/', '/edit/index.html'].includes(path)) {
 function initMemorizer() {
   //loadQuestions(testInput, ':')
 
-  loadQuestions(localStorage['editfield'], localStorage['textseperator'])
+  loadQuestionsAuto()
 
   if (localStorage['swapByDefault'] == "true") {
     doSwapQA()
@@ -103,9 +103,15 @@ function checkAnswer(event) {
   }
 
   //Get hint (?)
-  else if (event.keyCode == 191) {
+  else if (event.key == '?') {
     console.log('Hint Requested...')
     showChoices();
+    setTimeout(() => {answerField.value = '';})
+  }
+  //Show first letter (_)
+  else if (event.key == '_') {
+
+    notify("<b>" + correctAnswer[0] + "</b>" + "_".repeat(correctAnswerRaw.length -1), 2)
     setTimeout(() => {answerField.value = '';})
   }
   // //answer with choice (!)
@@ -131,6 +137,7 @@ function nextQuestion() {
   console.log(randomNum)
   var reviewIncorrectQuestion = ((incorrectList.length != 0) && (randomNum < REVIEW_PROBABILITY))
   
+  setTimeout(() => {answerField.value = '';})
   if (reviewIncorrectQuestion) {
     questionEl.innerHTML = `<i>${incorrectList[0][0]}</i>`;
     answerEl.innerHTML = incorrectList[0][1];
@@ -211,7 +218,11 @@ If you're reading this, please press edit and change the questions already! - OK
   return questionList
 }
 
-function loadLsQuestions() {
+function loadQuestionsAuto() {
+  urlDataObj = importFromURL()
+  if (urlDataObj) {
+    return loadQuestions(urlDataObj.editfield, urlDataObj.textseperator)
+  }
   return loadQuestions(localStorage['editfield'], localStorage['textseperator'])
 }
 
@@ -296,9 +307,17 @@ How long does the rickroll last in seconds? - 213`
   console.log("Data Loaded.")
 }
 
-function exportQuestions() {
+/**
+ * Retrieves data to be exported in JSON format.
+ *
+ * This function gathers various pieces of data from localStorage and other sources,
+ * compiles them into an object, and then converts that object to a JSON string.
+ *
+ * @returns {string} A JSON string representation of the data to be exported.
+ */
+function getDataToExport() { 
   saveData();
-  var editPageData = {
+  return {
     'aboutThis': {
       'website': 'https://memorize.pawin.me',
       'github': 'https://github.com/PawinChan/AMolOfMemories',
@@ -308,13 +327,66 @@ function exportQuestions() {
     'choicesByDefault': localStorage['choicesByDefault'],
     'editfield': localStorage['editfield'],
   }
-  var dataStr = JSON.stringify(editPageData, null, 2);
+}
+
+
+function exportQuestions() {
+  var dataStr = JSON.stringify(getDataToExport(), null, 2);
   var data = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
   var studySetName = prompt("Enter a name for this set:", "memorize") || "memorize";
   var downloadLink = document.createElement('a');
   downloadLink.setAttribute('href', data);
   downloadLink.setAttribute('download', `${studySetName}.memorize.json`);
   downloadLink.click();
+}
+
+
+function getRequestArgs(queryName) {
+  var urlParams = new URLSearchParams(window.location.search);
+  var result = urlParams.get(queryName);
+  return result
+}
+
+function importFromURL() {
+  var data = getRequestArgs('data');
+  if (!data) {
+    console.debug("Data not present in URL. Will assume it's in LocalStorage.")
+    return false;
+  }
+  try {
+    var dataStr = atob(data)
+    var dataObj = JSON.parse(dataStr);
+    console.log("Data detected and imported from URL.")
+    console.log(dataObj)
+    notify("Data detected and imported from URL!", 5)
+    return dataObj
+
+  } catch (error) {
+    console.warning("Data detected in URL, but unable to import.", error)
+    return false;
+  }
+}
+
+
+function exportToURL() {
+  var dataStr = JSON.stringify(getDataToExport()) //Not indenting since it wastes URL space
+  console.log(dataStr)
+  var data = btoa(dataStr)
+  var studySetName = prompt("Enter a name for this set:", "memorize") || "memorize";
+
+  var url = `${window.location.origin}/?name=${studySetName}&data=${data}`
+  if (url.length >= 2048) { 
+    alert("URL is too long. Please export to files instead.")
+    return
+  }
+  setTimeout(() => {
+    try {
+      navigator.clipboard.writeText(url)
+      setTimeout(() => { alert('URL Copied to Clipboard') })
+    } catch (error) {
+      console.error("Unable to copy URL to clipboard. ", error)
+    }
+  })
 }
 
 function importQuestions() { 
@@ -351,10 +423,10 @@ function changeSwapMode() {
     //TODO, swap periodically
   }
   else if (askQ) {
-    loadLsQuestions();
+    loadQuestionsAuto();
   }
   else if (askA) {
-    loadLsQuestions();
+    loadQuestionsAuto();
     doSwapQA()
   }
   else {
@@ -382,3 +454,4 @@ function notify(msg, sec = 1) {
 function showChoices() {
   document.getElementById('hint').style.visibility = 'visible';
 }
+
