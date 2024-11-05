@@ -8,6 +8,8 @@
   <link href="/styles.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- https://www.jsdelivr.com/package/npm/lz-string -->
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js" integrity="sha512-qtX0GLM3qX8rxJN1gyDfcnMFFrKvixfoEOwbBib9VafR5vbChV5LeE5wSI/x+IlCkTY5ZFddFDCCfaVJJNnuKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300&display=swap" rel="stylesheet">
   <title>Edit Items!</title>
 </head>
@@ -17,7 +19,7 @@
     <div id="seperatorOptionContainer">
       <label for="textSeperator">Q&A Seperator: &nbsp;</label>
       <select id="textSeperator" disabled>
-        <option value="-">-</option>
+        <option value="-" default>-</option>
         <option value=":">:</option>
         <option value=";">;</option>
         <option value="/">/</option>
@@ -27,7 +29,7 @@
       </select>
     </div>
     <br>
-    <p style="width: 100%; margin: 0; font-size: smaller;">
+    <p style="display: flex; width: 100%; margin: 0; font-size: smaller;">
       <input id="setTitle" style="display: inline-block;" placeholder="Set Title" required disabled>
       <span id="lastSaved" style="text-align: right; display: inline-block; width: 60%"> Last Saved: Loaded from LocalStorage</span>
       </p>

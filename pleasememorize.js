@@ -15,12 +15,40 @@ else if (['/edit', '/edit/', '/edit/index.html'].includes(path)) {
   window.addEventListener('DOMContentLoaded', initSaver);
 }
 
+
+function readLs(key) {
+  let string = localStorage[key];
+  if (string) {
+    try {
+      return JSON.parse(string)
+    } catch (e) {
+      console.warn("JSON Parse Error in readLS", e)
+    }
+  } else {
+    return null
+  }
+}
+
+
+function writeLs(key, data) {
+  try {
+    localStorage[key] = JSON.stringify(data)
+  } catch (e) {
+    console.warn(`writeLs failed: ` , e)
+  }
+}
+
+// function getSetData(setName, key) {
+function getSetData(key) {
+  let setData = JSON.parse(localStorage[`setData_default`]) || {}  
+  return setData[key]
+}
+
 function initMemorizer() {
   //loadQuestions(testInput, ':')
 
   loadQuestionsAuto()
-
-  if (localStorage['swapByDefault'] == "true") {
+  if (getSetData('questionSwapCheckbox') == true) {
     doSwapQA()
     console.log("Swapping Q/A since its enabled by this set.")
   }
@@ -50,8 +78,9 @@ function addToIncorrect(currentQuestion, correctAnswer) {
 
 function prepareChoices() {
   var choices = [answerEl.innerHTML]
+  var numChoices = Math.min(4, questionList.length)
 
-  while (choices.length < 4) {
+  while (choices.length < numChoices) {
     //get random answer
 
     let potentialChoice = questionList[randInt(0, questionList.length - 1)][1];
@@ -158,7 +187,7 @@ function nextQuestion() {
 
   answerField.value = '';
   prepareChoices();
-  if (localStorage['choicesByDefault'] == "true") {
+  if (getSetData('showChoicesCheckbox') == true) {
     showChoices();
   }
   else {
@@ -223,7 +252,7 @@ function loadQuestionsAuto() {
   if (urlDataObj) {
     return loadQuestions(urlDataObj.editfield, urlDataObj.textseperator)
   }
-  return loadQuestions(localStorage['editfield'], localStorage['textseperator'])
+  return loadQuestions(getSetData('editField'), getSetData('textSeperator'))
 }
 
 function shuffleQuestions() {
@@ -257,52 +286,51 @@ function arrayShuffle(array) {
 // edit page
 
 function initSaver() {
-  editFieldEl = document.getElementById('editField');
-  textSeperatorEl = document.getElementById('textSeperator');
-  questionSwapCheckbox = document.getElementById('questionSwapCheckbox');
-  showChoicesCheckbox = document.getElementById('showChoicesCheckbox');
-
-
-  editFieldEl.addEventListener('keyup', saveData);
-  textSeperatorEl.addEventListener('change', saveData);
-  questionSwapCheckbox.addEventListener('change', saveData);
-  showChoicesCheckbox.addEventListener('change', saveData);
+  elementsToSave = ['setTitle', 'editField', 'textSeperator', 'questionSwapCheckbox', 'showChoicesCheckbox']
+  inputEls = {}
+  for (let elementId of elementsToSave) {
+    let el = document.getElementById(elementId)
+    el.addEventListener('change', saveData)
+    el.addEventListener('keyup', saveData)
+    inputEls[elementId] = el
+  }  
   console.log("Autosave Ready.")
-
   loadData();
 }
 
 function saveData() {
-  localStorage['editfield'] = editFieldEl.value;
-  localStorage['textseperator'] = textSeperatorEl.value;
-  localStorage['swapByDefault'] = questionSwapCheckbox.checked;
-  localStorage['choicesByDefault'] = showChoicesCheckbox.checked;
+  let setData = {}
+  for (let el of Object.values(inputEls)) {
+    if (el.type == 'checkbox') {
+      setData[el.id] = el.checked;
+    } else if (el.type == 'text' || el.type == 'textarea' || el.type == 'select-one') {
+      setData[el.id] = el.value;
+    } else {
+      console.error("Unsuppored input type, not text or checkbox: ", el)
+    }
+  }
+  setTitle = setData['setTitle']
+  // localStorage[`setData_${setTitle}`] = JSON.stringify(setData)
+  localStorage[`setData_default`] = JSON.stringify(setData)
+  
   console.debug("Saved.")
   document.getElementById('lastSaved').innerHTML = `Last Saved: ${new Date().toLocaleString('en-UK')}`
 }
 
 function loadData() {
-  var editFieldValue = localStorage['editfield'];
-  var textSeperatorValue = localStorage['textseperator'];
-  
-  if (!editFieldValue) {
-    editFieldValue = `What does youtu.be/dQw4w9WgXcQ lead to? - The Rickroll
-How long does the rickroll last in seconds? - 213`
+  // setData = JSON.parse(localStorage[`setData_${setTitle}`]) || {}
+  setData = JSON.parse(localStorage[`setData_default`]) || {}  
+  for (let el of Object.values(inputEls)) {
+    console.log(`Restoring element value for`, el)
+    if (el.type == 'checkbox') {
+      el.checked = (setData[el.id] == true);
+    } else if (el.type == 'text' || el.type == 'textarea' || el.type == 'select-one') {
+      el.value = setData[el.id];
+    } else {
+      console.error("Unsuppored input type, not text or checkbox: ", el)
+    }
+    el.removeAttribute('disabled');
   }
-
-  if (!textSeperatorValue) {
-    textSeperatorValue = '-'
-  }
-
-  editFieldEl.value = editFieldValue
-  textSeperatorEl.value = textSeperatorValue
-  questionSwapCheckbox.checked = localStorage['swapByDefault'] == "true";
-  showChoicesCheckbox.checked = localStorage['choicesByDefault'] == "true";
-
-  editField.removeAttribute('disabled');
-  textSeperatorEl.removeAttribute('disabled');
-  questionSwapCheckbox.removeAttribute('disabled');
-  showChoicesCheckbox.removeAttribute('disabled');
 
   console.log("Data Loaded.")
 }
@@ -315,25 +343,32 @@ How long does the rickroll last in seconds? - 213`
  *
  * @returns {string} A JSON string representation of the data to be exported.
  */
-function getDataToExport() { 
+function getDataToExport(minimal=true) { 
   saveData();
-  return {
-    'aboutThis': {
-      'website': 'https://memorize.pawin.me',
-      'github': 'https://github.com/PawinChan/AMolOfMemories',
-    },
-    'textseperator': localStorage['textseperator'],
-    'swapByDefault': localStorage['swapByDefault'],
-    'choicesByDefault': localStorage['choicesByDefault'],
-    'editfield': localStorage['editfield'],
+  // let dataToExport =  {
+  //   'textseperator': localStorage['textseperator'],
+  //   'swapByDefault': localStorage['swapByDefault'],
+  //   'choicesByDefault': localStorage['choicesByDefault'],
+  //   'editfield': localStorage['editfield'],
+  // }
+  
+  if (minimal) {
+    return localStorage['setData_default']
+  } else {
+    let setData = JSON.parse(localStorage['setData_default']);
+    setData['aboutThis'] = { 'website': 'https://memorize.pawin.me', 'github': 'https://github.com/PawinChan/AMolOfMemories' }
+    return JSON.stringify(setData, null, 2);
   }
+
+  
 }
 
 
 function exportQuestions() {
-  var dataStr = JSON.stringify(getDataToExport(), null, 2);
+  var dataStr = getDataToExport(minimal=false)
   var data = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-  var studySetName = prompt("Enter a name for this set:", "memorize") || "memorize";
+  // var studySetName = prompt("Enter a name for this set:", "memorize") || "memorize";
+  var studySetName = inputEls['setTitle'].value
   var downloadLink = document.createElement('a');
   downloadLink.setAttribute('href', data);
   downloadLink.setAttribute('download', `${studySetName}.memorize.json`);
@@ -349,12 +384,20 @@ function getRequestArgs(queryName) {
 
 function importFromURL() {
   var data = getRequestArgs('data');
+  var dataType = getRequestArgs('as') || 'lz-string';
   if (!data) {
-    console.debug("Data not present in URL. Will assume it's in LocalStorage.")
+    console.debug("Data not present in URL. Will assume it's in localStorage.")
     return false;
   }
   try {
-    var dataStr = atob(data)
+    if (dataType == "lz-string") {
+      var dataStr = decompressText(data);
+      console.log("Assuming URL data is encoded as lz-string")
+    }
+    else {
+      var dataStr = atob(data)
+      console.log("Treating URL data as b64")
+    }
     var dataObj = JSON.parse(dataStr);
     console.log("Data detected and imported from URL.")
     console.log(dataObj)
@@ -362,18 +405,19 @@ function importFromURL() {
     return dataObj
 
   } catch (error) {
-    console.warning("Data detected in URL, but unable to import.", error)
+    console.warn("Data detected in URL, but unable to import.", error)
+    notify(`Data detected in URL, but unable to import: <br> ${error}<br>`, 10)
     return false;
   }
 }
 
 
 function exportToURL() {
-  var dataStr = JSON.stringify(getDataToExport()) //Not indenting since it wastes URL space
+  var dataStr = getDataToExport(minimal=true) //Not indenting since it wastes URL space
   console.log(dataStr)
-  var data = btoa(dataStr)
-  var studySetName = prompt("Enter a name for this set:", "memorize") || "memorize";
-
+  var data = compressText(dataStr)
+  // var studySetName = prompt("Enter a name for this set:", "memorize") || "memorize";
+  var studySetName = inputEls['setTitle'].value
   var url = `${window.location.origin}/?name=${studySetName}&data=${data}`
   if (url.length >= 2048) { 
     alert("URL is too long. Please export to files instead.")
@@ -403,10 +447,11 @@ function importQuestions() {
     var reader = new FileReader();
     reader.onload = function(e) {
       var data = JSON.parse(e.target.result);
-      localStorage['editfield'] = data.editfield;
-      localStorage['textseperator'] = data.textseperator;
-      localStorage['swapByDefault'] = data.swapByDefault;
-      localStorage['choicesByDefault'] = data.choicesByDefault;
+      // localStorage['editfield'] = data.editfield;
+      // localStorage['textseperator'] = data.textseperator;
+      // localStorage['swapByDefault'] = data.swapByDefault;
+      // localStorage['choicesByDefault'] = data.choicesByDefault;
+      localStorage['setData_default'] = data;
       console.log('Questions Imported.')
       loadData();
     }
@@ -415,25 +460,25 @@ function importQuestions() {
   fileInput.click();
 }
 
-function changeSwapMode() {
-  let askQ = document.getElementById('askQ').checked;
-  let askA = document.getElementById('askA').checked;
+// function changeSwapMode() {
+//   let askQ = document.getElementById('askQ').checked;
+//   let askA = document.getElementById('askA').checked;
 
-  if (askQ && askA) {
-    //TODO, swap periodically
-  }
-  else if (askQ) {
-    loadQuestionsAuto();
-  }
-  else if (askA) {
-    loadQuestionsAuto();
-    doSwapQA()
-  }
-  else {
-    //TODO, show both
-  }
+//   if (askQ && askA) {
+//     //TODO, swap periodically
+//   }
+//   else if (askQ) {
+//     loadQuestionsAuto();
+//   }
+//   else if (askA) {
+//     loadQuestionsAuto();
+//     doSwapQA()
+//   }
+//   else {
+//     //TODO, show both
+//   }
 
-}
+// }
 
 function doSwapQA() {
   for (let item of questionList) {
@@ -455,3 +500,22 @@ function showChoices() {
   document.getElementById('hint').style.visibility = 'visible';
 }
 
+
+// var string = "This is my compression test.";
+// alert("Size of sample is: " + string.length);
+// var compressed = LZString.compress(string);
+// alert("Size of compressed sample is: " + compressed.length);
+// string = LZString.decompress(compressed);
+// alert("Sample is: " + string);
+
+function compressText(text) {
+  console.log("Compressing text...");
+  let startTime = performance.now();
+  let result = LZString.compressToEncodedURIComponent(text);
+  let endTime = performance.now();
+  console.log(`Compression Stats: ${text.length} -> ${result.length} (${(result.length/text.length*100).toFixed(2)}% compressed in ${endTime-startTime}ms.)`)
+  return result;
+}
+function decompressText(text) {
+  return LZString.decompressFromEncodedURIComponent(text);
+}
