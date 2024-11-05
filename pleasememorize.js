@@ -40,7 +40,12 @@ function writeLs(key, data) {
 
 // function getSetData(setName, key) {
 function getSetData(key) {
-  let setData = JSON.parse(localStorage[`setData_default`]) || {}  
+  var setData
+  try {
+    setData = JSON.parse(localStorage[`setData_default`]) || {}  
+  } catch (e) {
+    setData =  {}
+  }
   return setData[key]
 }
 
@@ -319,7 +324,12 @@ function saveData() {
 
 function loadData() {
   // setData = JSON.parse(localStorage[`setData_${setTitle}`]) || {}
-  setData = JSON.parse(localStorage[`setData_default`]) || {}  
+  var setData
+  try {
+    setData = JSON.parse(localStorage[`setData_default`]) || {}  
+  } catch (e) {
+    setData =  {}
+  }
   for (let el of Object.values(inputEls)) {
     console.log(`Restoring element value for`, el)
     if (el.type == 'checkbox') {
