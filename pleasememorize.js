@@ -148,10 +148,10 @@ function checkAnswer(event) {
     notify("<b>" + correctAnswer[0] + "</b>" + "_".repeat(correctAnswerRaw.length -1), 2)
     setTimeout(() => {answerField.value = '';})
   }
-  // //answer with choice (!)
-  // else if (event.keyCode = 49) {
-
-  // }
+  else if (event.key == "Dead") {
+    //pass
+    console.debug("Ignoring dead key which may be used for accents.")
+  }
   //wrong answer
   else if (userAnswer.length >= correctAnswer.length && userAnswer != correctAnswer) {
     answerField.style.outline = 'solid 2px Tomato';
@@ -326,7 +326,7 @@ function loadData() {
   // setData = JSON.parse(localStorage[`setData_${setTitle}`]) || {}
   var setData
   try {
-    setData = JSON.parse(localStorage[`setData_default`]) || {}  
+    setData = JSON.parse(localStorage[`setData_default`]) || {} 
   } catch (e) {
     setData =  {}
   }
@@ -335,7 +335,7 @@ function loadData() {
     if (el.type == 'checkbox') {
       el.checked = (setData[el.id] == true);
     } else if (el.type == 'text' || el.type == 'textarea' || el.type == 'select-one') {
-      el.value = setData[el.id];
+      el.value = setData[el.id] || "";
     } else {
       console.error("Unsuppored input type, not text or checkbox: ", el)
     }
@@ -429,9 +429,9 @@ function exportToURL() {
   // var studySetName = prompt("Enter a name for this set:", "memorize") || "memorize";
   var studySetName = inputEls['setTitle'].value
   var url = `${window.location.origin}/?name=${studySetName}&data=${data}`
-  if (url.length >= 2048) { 
-    alert("URL is too long. Please export to files instead.")
-    return
+  if (url.length >= 4096) { 
+    alert("URL is too long. Exported data may be invalid! Be sure to double-check if it works. If not, please consider exporting to a file instead.")
+    console.debug(url)
   }
   setTimeout(() => {
     try {
